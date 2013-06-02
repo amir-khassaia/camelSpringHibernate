@@ -17,7 +17,7 @@ For more help see the Apache Camel documentation
  Hibernate DB using a Camel Route.
  
  The project is based on the Camel Maven archetype and reuses the XML objects:
- ?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <person user="james">
   <firstName>James</firstName>
   <lastName>Strachan</lastName>
