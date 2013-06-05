@@ -23,73 +23,73 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations="/META-INF/spring/spring-context.xml")
-public class CamelHibernateTest extends CamelTestSupport{
+@ContextConfiguration(locations = "/META-INF/spring/spring-context.xml")
+public class CamelHibernateTest extends CamelTestSupport {
 
-		@Autowired
-    	private SessionFactory sessionFactory;
+	@Autowired
+	private SessionFactory sessionFactory;
 
-		@Autowired
-		private TransactionStrategy transactionStrategy;
+	@Autowired
+	private TransactionStrategy transactionStrategy;
 
-		@Produce(uri = "direct:start")
-	    protected ProducerTemplate template;
+	@Produce(uri = "direct:start")
+	protected ProducerTemplate template;
 
-		@EndpointInject(uri = "mock:to")
-		protected MockEndpoint toEndpoint;
+	@EndpointInject(uri = "mock:to")
+	protected MockEndpoint toEndpoint;
 
-		@EndpointInject(uri = "hibernate:org.bitpimp.camelHibernate.Person")
-		protected HibernateEndpoint hibernateEndpoint;
+	@EndpointInject(uri = "hibernate:org.bitpimp.camelHibernate.Person")
+	protected HibernateEndpoint hibernateEndpoint;
 
-		private final RouteBuilder routeBuilder = new RouteBuilder() {
-			private final DataFormat jaxb = new JaxbDataFormat("org.bitpimp.camelHibernate");
-
-			@Override
-			public void configure() {
-				// As HibernateEndpoint is passed down directly into the route
-				// setup Hibernate specifics on this instance before it is used
-				hibernateEndpoint.setTransactionStrategy(transactionStrategy);
-
-				// Send a persisted XML bean to JAXB unmarshaller then
-				// onto mock and hibernate endpoints
-				from("direct:start")
-					.tracing()
-					.unmarshal(jaxb)
-					.to(toEndpoint)
-					.to(hibernateEndpoint);
-			}
-		};
+	private final RouteBuilder routeBuilder = new RouteBuilder() {
+		private final DataFormat jaxb = new JaxbDataFormat(
+				"org.bitpimp.camelHibernate");
 
 		@Override
-		protected RouteBuilder createRouteBuilder() throws Exception {
-			return routeBuilder ;
+		public void configure() {
+			// As HibernateEndpoint is passed down directly into the route
+			// setup Hibernate specifics on this instance before it is used
+			hibernateEndpoint.setTransactionStrategy(transactionStrategy);
+
+			// Send a persisted XML bean to JAXB unmarshaller then
+			// onto mock and hibernate endpoints
+			from("direct:start").tracing().unmarshal(jaxb).to(toEndpoint)
+					.to(hibernateEndpoint);
 		}
+	};
 
-		@Test
-		public void testRoute() throws Exception {
+	@Override
+	protected RouteBuilder createRouteBuilder() throws Exception {
+		return routeBuilder;
+	}
 
-			// send an xml string which should be unmarshalled into a POJO and serialized to hibernate
-	        final Person expectedPOJO = new Person("James", "Strachan", "London");
-			toEndpoint.expectedBodiesReceived(expectedPOJO);
+	@Test
+	public void testRoute() throws Exception {
 
-			// Send XML payload and check mock endpoint gets the POJO back
-	        template.sendBodyAndHeader(
-	        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" +
-	        		"<person user=\"james\">\r\n" +
-	        		"  <firstName>James</firstName>\r\n" +
-	        		"  <lastName>Strachan</lastName>\r\n" +
-	        		"  <city>London</city>\r\n" +
-	        		"</person>", "foo", "bar");
+		// send an xml string which should be unmarshalled into a POJO and
+		// serialized to hibernate
+		final Person expectedPOJO = new Person("James", "Strachan", "London");
+		toEndpoint.expectedBodiesReceived(expectedPOJO);
 
-	        toEndpoint.assertIsSatisfied();
+		// Send XML payload and check mock endpoint gets the POJO back
+		template.sendBodyAndHeader(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n"
+						+ "<person user=\"james\">\r\n"
+						+ "  <firstName>James</firstName>\r\n"
+						+ "  <lastName>Strachan</lastName>\r\n"
+						+ "  <city>London</city>\r\n" + "</person>", "foo",
+				"bar");
 
-	        // Verify real endpoint has the persisted data from POJO serialization
-	        Session session = sessionFactory.openSession();
-	        SQLQuery q = session.createSQLQuery("SELECT * from People").addEntity(Person.class);
-	        List<?> results = q.list();
-	        Assert.assertNotNull(results);
-	        Assert.assertTrue(results.size() == 1);
-	        Assert.assertEquals(expectedPOJO, results.get(0));
-	        session.close();
-		}
+		toEndpoint.assertIsSatisfied();
+
+		// Verify real endpoint has the persisted data from POJO serialization
+		Session session = sessionFactory.openSession();
+		SQLQuery q = session.createSQLQuery("SELECT * from People").addEntity(
+				Person.class);
+		List<?> results = q.list();
+		Assert.assertNotNull(results);
+		Assert.assertTrue(results.size() == 1);
+		Assert.assertEquals(expectedPOJO, results.get(0));
+		session.close();
+	}
 }
