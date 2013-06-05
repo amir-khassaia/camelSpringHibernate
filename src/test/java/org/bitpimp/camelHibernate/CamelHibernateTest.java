@@ -77,8 +77,8 @@ public class CamelHibernateTest extends CamelTestSupport {
 						+ "<person user=\"james\">\r\n"
 						+ "  <firstName>James</firstName>\r\n"
 						+ "  <lastName>Strachan</lastName>\r\n"
-						+ "  <city>London</city>\r\n" + "</person>", "foo",
-				"bar");
+						+ "  <city>London</city>\r\n" + "</person>",
+						"foo", "bar");
 
 		toEndpoint.assertIsSatisfied();
 
