@@ -1,57 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Configures the Camel Context-->
 
-<beans xmlns="http://www.springframework.org/schema/beans" 
+<beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.com/schema/context"
     xmlns:jdbc="http://www.springframework.org/schema/jdbc"
     xmlns:camel="http://camel.apache.org/schema/spring"
+    xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context-3.2.xsd
-                           http://camel.apache.org/schema/spring 
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+                           http://camel.apache.org/schema/spring
                            http://camel.apache.org/schema/spring/camel-spring.xsd
                            http://www.springframework.org/schema/jdbc
                            http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
-  <camel:camelContext xmlns="http://camel.apache.org/schema/spring">
-    <!-- here is a sample which processes the input files
-         (leaving them in place - see the 'noop' flag)
-         then performs content based routing on the message using XPath -->
-    <camel:route trace="true">
-      <camel:from uri="file:src/data?noop=true"/>
-      <camel:choice>
-        <camel:when>
-          <camel:xpath>/person/city = 'London'</camel:xpath>
-          <camel:log message="UK message"/>
-          <camel:to uri="file:target/messages/uk"/>
-          <!-- Prior to sending to Hibernate endpoint, unmarshal the XML into POJO via JAXB -->
-          <camel:unmarshal>
-            <jaxb prettyPrint="true" contextPath="org.bitpimp.camelHibernate"/>
-          </camel:unmarshal>
-          <camel:to uri="hibernate:org.bitpimp.camelHibernate.Person"/>
-        </camel:when>
-        <camel:otherwise>
-          <camel:log message="Other message"/>
-          <camel:to uri="file:target/messages/others"/>
-          <!-- Prior to sending to Hibernate endpoint, unmarshal the XML into POJO via JAXB -->
-          <camel:unmarshal>
-            <jaxb prettyPrint="true" contextPath="org.bitpimp.camelHibernate"/>
-          </camel:unmarshal>
-          <camel:to uri="hibernate:org.bitpimp.camelHibernate.Person"/>
-        </camel:otherwise>
-      </camel:choice>
-      <camel:stop/>
-    </camel:route>
-    
-  </camel:camelContext>
+  <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <import resource="datasource.xml"/>
+  <import resource="datasource.xml"/>
 
   <jdbc:embedded-database id="embeddedDataSource" type="DERBY">
   </jdbc:embedded-database>
-  
+
   <!-- setup the Camel hibernate component -->
   <bean id="hibernate" class="org.apacheextras.camel.component.hibernate.HibernateComponent">
     <property name="sessionFactory" ref="sessionFactory"/>
