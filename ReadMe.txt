@@ -15,7 +15,7 @@ For more help see the Apache Camel documentation
 
  A sample project showing a POJO that can be unmarshalled from XML via JAXB and persisted to
  Hibernate DB using a Camel Route.
- 
+
  The project is based on the Camel Maven archetype and reuses the XML objects:
 <?xml version="1.0" encoding="UTF-8"?>
 <person user="james">
@@ -23,10 +23,10 @@ For more help see the Apache Camel documentation
   <lastName>Strachan</lastName>
   <city>London</city>
 </person>
- 
+
  There is a POJO defined that is using both JAXB and JPA/Hibernate annotations due to the
  duality of its nature (belonging to both JAXB and JPA realms).
- eg: 
+ eg:
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(factoryClass=ObjectFactory.class, factoryMethod="createPerson")
@@ -36,7 +36,6 @@ public class Person {
     String lastName;
     String city;
 }
-
+Hibernate mapping file is provided for actual mappings (as opposed to annotations).
 The data source is configured in datasource.xml which uses Spring 3.1 profiles to provide a testing
-and production sample profiles. Maven java:exec is set to run with testing profile by default. 
- 
+and production sample profiles. Maven java:exec is set to run with testing profile by default.
