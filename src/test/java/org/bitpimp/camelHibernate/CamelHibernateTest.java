@@ -53,8 +53,10 @@ public class CamelHibernateTest extends CamelTestSupport {
 
 			// Send a persisted XML bean to JAXB unmarshaller then
 			// onto mock and hibernate endpoints
-			from("direct:start").tracing().unmarshal(jaxb).to(toEndpoint)
-					.to(hibernateEndpoint);
+			from("direct:start")
+				.tracing()
+				.unmarshal(jaxb)
+				.multicast().to(toEndpoint, hibernateEndpoint);
 		}
 	};
 

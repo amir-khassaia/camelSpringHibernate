@@ -18,22 +18,18 @@
           <camel:xpath>/person/city = 'London'</camel:xpath>
           <camel:log message="UK message"/>
           <camel:to uri="file:target/messages/uk"/>
-          <!-- Prior to sending to Hibernate endpoint, unmarshal the XML into POJO via JAXB -->
-          <camel:unmarshal>
-            <jaxb prettyPrint="true" contextPath="org.bitpimp.camelHibernate"/>
-          </camel:unmarshal>
-          <camel:to uri="hibernate:org.bitpimp.camelHibernate.Person"/>
         </camel:when>
         <camel:otherwise>
           <camel:log message="Other message"/>
           <camel:to uri="file:target/messages/others"/>
-          <!-- Prior to sending to Hibernate endpoint, unmarshal the XML into POJO via JAXB -->
-          <camel:unmarshal>
-            <jaxb prettyPrint="true" contextPath="org.bitpimp.camelHibernate"/>
-          </camel:unmarshal>
-          <camel:to uri="hibernate:org.bitpimp.camelHibernate.Person"/>
         </camel:otherwise>
       </camel:choice>
+
+      <!-- Prior to sending to Hibernate endpoint, unmarshal the XML into POJO via JAXB -->
+      <camel:unmarshal>
+        <jaxb prettyPrint="true" contextPath="org.bitpimp.camelHibernate"/>
+      </camel:unmarshal>
+      <camel:to uri="hibernate:org.bitpimp.camelHibernate.Person"/>
       <camel:stop/>
     </camel:route>
   </camel:camelContext>
