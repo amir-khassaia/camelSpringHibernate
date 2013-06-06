@@ -6,6 +6,7 @@
                         http://camel.apache.org/schema/spring
                         http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+<!-- Configures the Camel Context-->
 <camel:camelContext xmlns="http://camel.apache.org/schema/spring">
     <!-- here is a sample which processes the input files
          (leaving them in place - see the 'noop' flag)
